@@ -11,23 +11,29 @@ repository = "https://github.com/etchegom/factoryboy-edsl"
 documentation = "https://github.com/etchegom/factoryboy-edsl"
 keywords = ["elasticsearch-dsl", "elasticsearch", "factory-boy", "factoryboy"]
 classifiers = [
-    "Environment :: Web Environment",
-    "Natural Language :: English",
-    "License :: OSI Approved :: MIT License",
-    "Intended Audience :: Developers",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
+  "Environment :: Web Environment",
+  "Natural Language :: English",
+  "License :: OSI Approved :: MIT License",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
-packages = [{include = "factory_edsl"}]
+packages = [{ include = "factory_edsl" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
 factory-boy = "^3.3.0"
+elasticsearch-dsl = "^8.9.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.10.0"
+ruff = "^0.1.0"
+pytest = "^7.4.2"
 
 [build-system]
 requires = ["poetry-core"]
@@ -82,6 +88,7 @@ case-sensitive = true
 known-third-party = [
   "elasticsearch_dsl",
   "factory",
+  "factory_edsl"
 ]
 split-on-trailing-comma = true
 section-order = [
