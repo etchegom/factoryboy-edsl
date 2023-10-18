@@ -23,6 +23,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
+packages = [{include = "factory_edsl"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
