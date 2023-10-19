@@ -6,7 +6,7 @@ from factory import base
 class EDSLFactoryOptions(base.FactoryOptions):
     def _build_default_options(self):
         return super()._build_default_options() + [
-            base.OptionDefault("allow_extra_fields", False, inherit=True)
+            base.OptionDefault("strip_unknown_fields", True, inherit=True)
         ]
 
 
@@ -35,7 +35,7 @@ class EDSLDocumentFactory(base.Factory):
     def _get_object(cls, model_class, *args, **kwargs):
         meta_id = kwargs.pop("meta_id", None)
 
-        if not cls._meta.allow_extra_fields:
+        if cls._meta.strip_unknown_fields:
             filtered_kwargs = {k: v for k, v in kwargs.items() if k in cls._get_field_names()}
         else:
             filtered_kwargs = kwargs
