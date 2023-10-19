@@ -1,7 +1,18 @@
 from __future__ import annotations
 
-from elasticsearch_dsl import Document, connections
-from elasticsearch_dsl.field import Date, Float, Integer, Text
+from datetime import datetime
+
+from elasticsearch_dsl import Document, InnerDoc, connections
+from elasticsearch_dsl.field import (
+    Boolean,
+    Completion,
+    Date,
+    Float,
+    Integer,
+    Keyword,
+    Nested,
+    Text,
+)
 
 connections.configure(
     default={
@@ -12,23 +23,49 @@ connections.configure(
 INDEX_NAME = "testing-edsl-factory"
 
 
-class MyDocument(Document):
+class CommentDocument(InnerDoc):
+    author = Text(fields={"raw": Keyword()})
+    content = Text(analyzer="snowball")
+    created_at = Date()
+
+    def age(self):
+        return datetime.now() - self.created_at
+
+
+class PostDocument(Document):
+    title = Text()
+    title_suggest = Completion()
+    created_at = Date()
+    published = Boolean()
+    rating = Integer()
+    rank = Float()
+
+    comments = Nested(CommentDocument)
+
     class Index:
         name = INDEX_NAME
 
-    name = Text()
-    age = Integer()
-    date = Date()
-    score = Float()
+    def add_comment(self, author, content):
+        self.comments.append(
+            CommentDocument(
+                author=author,
+                content=content,
+                created_at=datetime.now(),
+            )
+        )
+
+    def save(self, **kwargs):
+        self.created_at = datetime.now()
+        return super().save(**kwargs)
 
 
 class IndexBasedTest:
     def _delete_index(self):
-        MyDocument._index.delete(ignore=404)
+        PostDocument._index.delete(ignore=404)
 
     def setup(self):
         self._delete_index()
-        MyDocument.init()
+        PostDocument.init()
 
     def teardown(self):
         self._delete_index()
