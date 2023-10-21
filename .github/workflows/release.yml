@@ -9,14 +9,15 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: 3.11
 
       - name: Install Poetry
         uses: snok/install-poetry@v1
