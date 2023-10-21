@@ -1,17 +1,37 @@
 from __future__ import annotations
 
+from elasticsearch_dsl import Document, InnerDoc
 from factory import base
 
 
 class EDSLFactoryOptions(base.FactoryOptions):
     def _build_default_options(self):
         return super()._build_default_options() + [
-            base.OptionDefault("strip_unknown_fields", True, inherit=True)
+            base.OptionDefault("strip_unknown_fields", True, inherit=True),
         ]
+
+    def get_model_class(self):
+        if (
+            self.model
+            and self.factory
+            and hasattr(self.factory, "_underlying_type")
+            and not issubclass(self.model, self.factory._underlying_type)
+        ):
+            raise TypeError(f"Model class must be a subclass of {self.factory._underlying_type}")
+        return super().get_model_class()
+
+
+class EDSLInnerDocFactory(base.Factory):
+    _options_class = EDSLFactoryOptions
+    _underlying_type = InnerDoc
+
+    class Meta:
+        abstract = True
 
 
 class EDSLDocumentFactory(base.Factory):
     _options_class = EDSLFactoryOptions
+    _underlying_type = Document
 
     class Meta:
         abstract = True
@@ -41,16 +61,17 @@ class EDSLDocumentFactory(base.Factory):
             filtered_kwargs = kwargs
 
         obj = model_class(*args, **filtered_kwargs)
+
         if meta_id:
             obj.meta.id = meta_id
         return obj
-
-    @classmethod
-    def _build(cls, model_class, *args, **kwargs):
-        return cls._get_object(model_class, *args, **kwargs)
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         obj = cls._get_object(model_class, *args, **kwargs)
         obj.save()
         return obj
+
+    @classmethod
+    def _build(cls, model_class, *args, **kwargs):
+        return cls._get_object(model_class, *args, **kwargs)

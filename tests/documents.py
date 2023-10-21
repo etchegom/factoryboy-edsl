@@ -57,15 +57,3 @@ class PostDocument(Document):
     def save(self, **kwargs):
         self.created_at = datetime.now()
         return super().save(**kwargs)
-
-
-class IndexBasedTest:
-    def _delete_index(self):
-        PostDocument._index.delete(ignore=404)
-
-    def setup(self):
-        self._delete_index()
-        PostDocument.init()
-
-    def teardown(self):
-        self._delete_index()
