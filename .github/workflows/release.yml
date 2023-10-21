@@ -28,7 +28,9 @@ jobs:
           installer-parallel: true
 
       - name: Build project
-        run: poetry build
+        run: |
+          poetry build
+          ls -l dist
 
       - name: Create Release
         uses: ncipollo/release-action@v1
