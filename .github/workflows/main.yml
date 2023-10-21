@@ -1,4 +1,4 @@
-name: Main
+name: Check and test
 
 on:
   push:
@@ -101,6 +101,10 @@ jobs:
           python -m pip install "factory-boy~=${{ matrix.factoryboy-version }}"
           poetry install --no-interaction --only-root
           python -m pip install pytest
+
+      - name: Wait for elasticsearch to start
+        run: sleep 10s
+        shell: bash
 
       - name: Run python tests
         run: |

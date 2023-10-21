@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
-
 from elasticsearch_dsl import Document, InnerDoc, connections
 from elasticsearch_dsl.field import (
     Boolean,
@@ -29,14 +27,10 @@ class CommentDocument(InnerDoc):
     created_at = Date()
     tag = Keyword()
 
-    def age(self):
-        return datetime.now() - self.created_at
-
 
 class PostDocument(Document):
     title = Text()
     title_suggest = Completion()
-    created_at = Date()
     published = Boolean()
     rating = Integer()
     rank = Float()
@@ -46,16 +40,3 @@ class PostDocument(Document):
 
     class Index:
         name = INDEX_NAME
-
-    def add_comment(self, author, content):
-        self.comments.append(
-            CommentDocument(
-                author=author,
-                content=content,
-                created_at=datetime.now(),
-            )
-        )
-
-    def save(self, **kwargs):
-        self.created_at = datetime.now()
-        return super().save(**kwargs)
