@@ -1,0 +1,108 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.5.1
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Load cached venv
+        id: cached-venv
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}
+
+      - name: Run pre-commit hooks
+        uses: pre-commit/action@v3.0.0
+
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      elasticsearch:
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.10.2
+          env:
+              discovery.type: single-node
+              xpack.security.enabled: false
+              xpack.security.http.ssl.enabled: false
+              bootstrap.memory_lock: true
+              indices.query.bool.max_clause_count: 1024
+          ports:
+              - 9200:9200
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - factoryboy-version: "3.2"
+            python-version: "3.8"
+          - factoryboy-version: "3.3"
+            python-version: "3.10"
+          - factoryboy-version: "3.3"
+            python-version: "3.11"
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.5.1
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Load cached venv
+        id: cached-venv
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ matrix.factoryboy-version }}-${{ hashFiles('poetry.lock') }}
+
+      - name: Install dependencies
+        if: steps.cached-venv.outputs.cache-hit != 'true'
+        run: |
+          poetry install --no-interaction --no-root --without dev
+          source .venv/bin/activate
+          python -m pip install "factory-boy~=${{ matrix.factoryboy-version }}"
+          poetry install --no-interaction --only-root
+          python -m pip install pytest
+
+      - name: Run python tests
+        run: |
+          source .venv/bin/activate
+          python -m pytest
