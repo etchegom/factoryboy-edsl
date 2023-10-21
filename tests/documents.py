@@ -27,6 +27,7 @@ class CommentDocument(InnerDoc):
     author = Text(fields={"raw": Keyword()})
     content = Text(analyzer="snowball")
     created_at = Date()
+    tag = Keyword()
 
     def age(self):
         return datetime.now() - self.created_at
@@ -39,6 +40,7 @@ class PostDocument(Document):
     published = Boolean()
     rating = Integer()
     rank = Float()
+    tag = Keyword()
 
     comments = Nested(CommentDocument)
 

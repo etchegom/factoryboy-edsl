@@ -13,6 +13,7 @@ class CommentInnerDocFactory(EDSLInnerDocFactory):
     author = factory.Faker("name")
     content = factory.Faker("sentence", nb_words=4)
     created_at = factory.Faker("date_time")
+    tag = factory.Faker("word")
 
 
 class PostDocumentFactory(EDSLDocumentFactory):
@@ -24,6 +25,13 @@ class PostDocumentFactory(EDSLDocumentFactory):
     published = factory.Faker("pybool")
     rating = factory.Faker("pyint", min_value=1, max_value=5)
     rank = factory.Faker("pyfloat", positive=True)
+    tag = factory.Faker("word")
+
+
+class CommentInnerDocFactoryNoStrip(CommentInnerDocFactory):
+    class Meta:
+        model = CommentDocument
+        strip_unknown_fields = False
 
 
 class PostDocumentFactoryNoStrip(PostDocumentFactory):

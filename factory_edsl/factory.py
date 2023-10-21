@@ -21,17 +21,9 @@ class EDSLFactoryOptions(base.FactoryOptions):
         return super().get_model_class()
 
 
-class EDSLInnerDocFactory(base.Factory):
+class EDSLBaseFactory(base.Factory):
     _options_class = EDSLFactoryOptions
-    _underlying_type = InnerDoc
-
-    class Meta:
-        abstract = True
-
-
-class EDSLDocumentFactory(base.Factory):
-    _options_class = EDSLFactoryOptions
-    _underlying_type = Document
+    _underlying_type = None
 
     class Meta:
         abstract = True
@@ -67,11 +59,31 @@ class EDSLDocumentFactory(base.Factory):
         return obj
 
     @classmethod
+    def _build(cls, model_class, *args, **kwargs):
+        return cls._get_object(model_class, *args, **kwargs)
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        return cls._get_object(model_class, *args, **kwargs)
+
+
+class EDSLInnerDocFactory(EDSLBaseFactory):
+    _options_class = EDSLFactoryOptions
+    _underlying_type = InnerDoc
+
+    class Meta:
+        abstract = True
+
+
+class EDSLDocumentFactory(EDSLBaseFactory):
+    _options_class = EDSLFactoryOptions
+    _underlying_type = Document
+
+    class Meta:
+        abstract = True
+
+    @classmethod
     def _create(cls, model_class, *args, **kwargs):
         obj = cls._get_object(model_class, *args, **kwargs)
         obj.save()
         return obj
-
-    @classmethod
-    def _build(cls, model_class, *args, **kwargs):
-        return cls._get_object(model_class, *args, **kwargs)
