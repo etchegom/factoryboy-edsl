@@ -40,4 +40,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: false
           prerelease: true
-          tag: false
+          tag: ${{ github.ref }}
