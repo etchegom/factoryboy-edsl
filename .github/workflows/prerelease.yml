@@ -1,0 +1,43 @@
+name: Pre-release
+
+on:
+  push:
+    branches:
+      - master
+      - prerelease
+      
+jobs:
+  release:
+    name: Pre-release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.5.1
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Build project
+        run: |
+          poetry build
+          ls -l dist
+
+      - name: Create Pre-release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/*"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: false
+          prerelease: true
+          tag: ${{ github.head_ref }}.${{ github.sha }}
